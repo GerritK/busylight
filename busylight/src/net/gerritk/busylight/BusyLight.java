@@ -103,7 +103,7 @@ public class BusyLight {
             throw new IllegalArgumentException("volume must be between 0..7!");
         }
 
-        if (getTone() != Tone.NONE) {
+        if (getTone() != Tone.NONE && getTone() != tone) {
             buffer[TONE] = (byte) Tone.NONE.getValue();
             send();
         }
