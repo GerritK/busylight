@@ -42,7 +42,7 @@ public class BusyLight {
     /**
      * Constructor to create a new Kuando BusyLight device.
      *
-     * @param device the hid device which represents the BusyLight
+     * @param device the hid device which represents the BusyLight; must not be <code>null</code>
      */
     protected BusyLight(HIDDevice device) {
         if (device == null) {
@@ -54,9 +54,9 @@ public class BusyLight {
     }
 
     /**
-     * Sets the color of the BusyLight.
+     * Sets the color.
      *
-     * @param color the color of the light
+     * @param color the color to set.
      */
     public void setColor(Color color) {
         buffer[RED] = (byte) color.getRed();
@@ -66,7 +66,7 @@ public class BusyLight {
     }
 
     /**
-     * Sets the color of the BusyLight.
+     * Sets the color.
      *
      * @param r the red part of the color; must be between 0..255
      * @param g the green part of the color; must be between 0..255
@@ -77,10 +77,23 @@ public class BusyLight {
     }
 
     /**
-     * Sets the ringtone of the BusyLight.
+     * Returns the current color.
      *
-     * @param tone   the tone to play
-     * @param volume the volume to play with
+     * @return the current color
+     */
+    public Color getColor() {
+        final int r = Byte.toUnsignedInt(buffer[RED]);
+        final int g = Byte.toUnsignedInt(buffer[GREEN]);
+        final int b = Byte.toUnsignedInt(buffer[BLUE]);
+
+        return new Color(r, g, b);
+    }
+
+    /**
+     * Starts playing the ringtone.
+     *
+     * @param tone   the {@link Tone} to play
+     * @param volume the volume to play with; must be between 0..7 where 0 means silent and 7 means loud
      */
     public void ring(Tone tone, int volume) {
         if (tone == null) {
@@ -90,13 +103,36 @@ public class BusyLight {
             throw new IllegalArgumentException("volume must be between 0..7!");
         }
 
-        if(buffer[TONE] / 8 != Tone.NONE.getValue()) {
+        if (getTone() != Tone.NONE) {
             buffer[TONE] = (byte) Tone.NONE.getValue();
             send();
         }
 
         buffer[TONE] = (byte) (tone.getValue() + volume);
         send();
+    }
+
+    /**
+     * Returns the currently playing {@link Tone}.
+     *
+     * @return the currently playing {@link Tone}
+     */
+    public Tone getTone() {
+        final int toneByte = Byte.toUnsignedInt(buffer[TONE]);
+        Tone result = Tone.getToneByValue(toneByte / 8 * 8);
+        if (result == null) {
+            result = Tone.NONE;
+        }
+        return result;
+    }
+
+    /**
+     * Returns the volume of the current playing {@link Tone}.
+     *
+     * @return the volume of the current playing {@link Tone}; between 0..7 where 0 means silent and 7 means loud
+     */
+    public int getVolume() {
+        return Byte.toUnsignedInt(buffer[TONE]) % 8;
     }
 
     /**
@@ -121,7 +157,7 @@ public class BusyLight {
     /**
      * Returns the manufacturer string of the BusyLight given by the {@link com.codeminders.hidapi.HIDDevice}.
      *
-     * @return the manufacturer string; null if {@link BusyLight#turnOff()} already called or an error occurred
+     * @return the manufacturer string; <code>null</code> if {@link BusyLight#turnOff()} already called or an error occurred
      */
     public String getManufacturer() {
         String result = null;
@@ -137,7 +173,7 @@ public class BusyLight {
     /**
      * Returns the product string of the BusyLight given by the {@link com.codeminders.hidapi.HIDDevice}.
      *
-     * @return the product string; null if {@link BusyLight#turnOff()} already called or an error occurred
+     * @return the product string; <code>null</code> if {@link BusyLight#turnOff()} already called or an error occurred
      */
     public String getProduct() {
         String result = null;
@@ -153,7 +189,7 @@ public class BusyLight {
     /**
      * Returns the unique serial of the BusyLight given by the {@link com.codeminders.hidapi.HIDDevice}.
      *
-     * @return the unique serial; null if {@link BusyLight#turnOff()} already called or an error occurred
+     * @return the unique serial; <code>null</code> if {@link BusyLight#turnOff()} already called or an error occurred
      */
     public String getSerial() {
         String result = null;

@@ -31,7 +31,25 @@ public enum Tone {
         this.value = value;
     }
 
+    /**
+     * Returns the value used by the {@link BusyLight} device.
+     * @return the value representing this {@link Tone}
+     */
     public int getValue() {
         return value;
+    }
+
+    /**
+     * Returns the tone which is represented by the given value.
+     * @param value the value to look for
+     * @return the tone which is represented by the value; null if no tone is found
+     */
+    public static Tone getToneByValue(int value) {
+        for(Tone tone : values()) {
+            if(tone.getValue() == value) {
+                return tone;
+            }
+        }
+        return null;
     }
 }
